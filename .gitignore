@@ -1,0 +1,8 @@
+# Ignore the binary produced
+sanepack
+
+# and temporary and backup files
+*~
+.\#*
+\#*
+*\#
