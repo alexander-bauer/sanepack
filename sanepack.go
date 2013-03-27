@@ -103,7 +103,6 @@ func CreateSanepack(filename string) (err error) {
 		// error), return.
 		l.Debug("File truncation failed\n")
 	}
-	f.Close()
 	l.Debug("Wrote template successfully\n")
 	return
 }
