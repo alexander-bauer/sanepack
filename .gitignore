@@ -1,5 +1,7 @@
 # Ignore the binary produced
 sanepack
+# Ignore output file
+output.json
 
 # and temporary and backup files
 *~
