@@ -18,6 +18,8 @@ var (
 	fFile   = flag.String("f", "sanepack.json", "sanepack file to read")
 	fCreate = flag.Bool("c", false, "create a template sanepack file")
 
+	fType = flag.String("t", "deb", "package type (such as \"deb\")")
+
 	fQuiet = flag.Bool("q", false, "disable logging") // not implemented
 	fVerb  = flag.Bool("v", false, "enable verbose log output")
 	fDebug = flag.Bool("debug", false, "enable debugging log output")
@@ -50,8 +52,19 @@ func main() {
 		return
 	}
 
-	// If we aren't creating a template,, begin normal
-	// operation. Start by trying to open the file for reading.
+	// If we aren't creating a template, begin normal operation. Start
+	// by determining the package type.
+	var fw Frameworker
+	switch *fType {
+	case "deb":
+		fw = DebianFrameworker{}
+	default:
+		// If the type of package requested is invalid, exit.
+		l.Fatalf("Invalid package type: %q\n", *fType)
+	}
+	l.Debugf("Framework type: %q", *fType)
+
+	// Now continue on to try to open the file.
 	l.Debugf("Trying to open file: %q\n", *fFile)
 	f, err := os.Open(*fFile)
 	if err != nil {
@@ -64,7 +77,7 @@ func main() {
 
 	// Now that the file has been opened and can be read from, try to
 	// decode it into a Package.
-	var p *Package
+	p := new(Package)
 	err = json.NewDecoder(f).Decode(p)
 	f.Close() // Close the file the moment we're done with it.
 	if err != nil {
@@ -72,6 +85,17 @@ func main() {
 		l.Fatalf("Could not decode project: %s", err)
 	}
 	l.Debug("Decode successful and file closed\n")
+
+	// Now, move on to creating the framework with the previously
+	// selected type.
+	l.Debugf("Trying to create framework with type %q\n", *fType)
+	err = fw.Framework(p)
+	if err != nil {
+		l.Fatalf("Could not create framework: %s", err)
+	}
+	l.Debug("Successfully created framework\n")
+
+	l.Println(fw.Info())
 }
 
 // Create a template sanepack file of the given filename.
