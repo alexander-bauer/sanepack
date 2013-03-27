@@ -85,8 +85,9 @@ func CreateSanepack(filename string) (err error) {
 	defer f.Close()
 	l.Debugf("File %q opened for writing\n", filename)
 
-	// MarshalIndent() a new Package object, then write it to the file.
-	b, err := json.MarshalIndent(new(Package), "", "\t")
+	// MarshalIndent() a template Package, then write it to the
+	// file. Note the call to templatePackage().
+	b, err := json.MarshalIndent(templatePackage(), "", "\t")
 	if err != nil {
 		l.Debug("JSON Marshalling failed\n")
 		return
