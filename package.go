@@ -34,6 +34,20 @@ type Package struct {
 	// Maintainer is the person who maintains the package, and may be
 	// separate from the ProjectOwners.
 	Maintainer Person
+
+	// Description is a brief, one line description of the project.
+	Description string
+
+	// Homepage is a link (HTTP or HTTPS) to the project homepage.
+	Homepage string
+
+	// BuildDepends is a slice containing the package names (and
+	// versions) of any packages required to build this one.
+	BuildDepends []string
+
+	// Depends is a slice containing the package names (and versions)
+	// of any packages required to run this one.
+	Depends []string
 }
 
 type Person struct {

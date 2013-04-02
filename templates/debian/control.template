@@ -1,0 +1,18 @@
+Source: {{.Name}}
+Section: {{.Section}}
+Priority: {{.Priority}}
+Maintainer: {{.Maintainer.Name}} <{{.Maintainer.Email}}>
+Build-Depends: {{.BuildDepends}}
+Standards-Version: {{.StandardsVersion}}{{if .Include.Homepage}}
+Homepage: {{.Homepage}}{{end}}
+
+Package: {{.Name}}
+Architecture: {{.Architecture}}
+Depends: {{.Depends}}{{if .Include.Recommends}}
+Recommends: {{.Recommends}}{{end}}{{if .Include.Suggests}}
+Suggests: {{.Suggests}}{{end}}{{if .Include.Conflicts}}
+Conflicts: {{.Conflicts}}{{end}}{{if .Include.Provides}}
+Provides: {{.Provides}}{{end}}{{if .Include.Replaces}}
+Replaces: {{.Replaces}}{{end}}
+Description: {{.Description}}
+{{.LongDescription}}

@@ -14,11 +14,16 @@ var (
 	loglevel log.LogLevel = log.WARNING // Normally only show warnings
 )
 
+const (
+	defaultTemplates = "/etc/sanepack"
+)
+
 var (
 	fFile   = flag.String("f", "sanepack.json", "sanepack file to read")
 	fCreate = flag.Bool("c", false, "create a template sanepack file")
 
 	fType = flag.String("t", "deb", "package type (such as \"deb\")")
+	fTemp = flag.String("temp", defaultTemplates, "template location")
 
 	fQuiet = flag.Bool("q", false, "disable logging") // not implemented
 	fVerb  = flag.Bool("v", false, "enable verbose log output")
@@ -129,5 +134,21 @@ func CreateSanepack(filename string) (err error) {
 		l.Debug("File truncation failed\n")
 	}
 	l.Debug("Wrote template successfully\n")
+	return
+}
+
+// concat is a small utility used to create long strings from
+// []strings. It places the given separator between every item in the
+// given array and returns it.
+func concat(sep string, items ...string) (concatenated string) {
+	for i, item := range items {
+		if i == 0 {
+			// The first item in the list needs no separator before
+			// it.
+			concatenated = item
+			continue
+		}
+		concatenated += sep + item
+	}
 	return
 }
