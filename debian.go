@@ -22,9 +22,9 @@ func (d DebianFrameworker) Info() string {
 
 func (d DebianFrameworker) Framework(p *Package) (err error) {
 	err = d.control(p.ProjectName, p.Description, "",
-		"devel", "optional",
-		p.Homepage, "any", p.Maintainer, p.BuildDepends, p.Depends,
-		nil, nil, nil, nil, nil)
+		p.Section, p.Priority,
+		p.Homepage, p.Architecture, p.Maintainer, p.BuildDepends, p.Depends,
+		p.Recommends, p.Suggests, p.Conflicts, p.Provides, p.Replaces)
 	return
 }
 

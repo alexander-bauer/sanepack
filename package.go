@@ -48,6 +48,25 @@ type Package struct {
 	// Depends is a slice containing the package names (and versions)
 	// of any packages required to run this one.
 	Depends []string
+
+	// Recommends, Suggests, Conflicts, Provides, and Replaces are
+	// non-required slices containing package names (and versions) of
+	// any packages as indicated by the name.
+	Recommends, Suggests, Conflicts, Provides, Replaces []string
+
+	// Section is the section of the repository, if applicable, to
+	// mark the package as part of, such as "devel" for Debian.
+	Section string
+
+	// Priority is the priority at which the package should be
+	// installed. This is usually "optional."
+	Priority string
+
+	// Architecture is the processor architecture for which the
+	// package is or can be compiled. If the package is in an
+	// interpreted language such as Python, it should be "all," and if
+	// it does not require a specific platform, it should be "any."
+	Architecture string
 }
 
 type Person struct {
@@ -93,6 +112,24 @@ func templatePackage() (p *Package) {
 	// out the fields.
 	p.ProjectOwners = []Person{user}
 	p.Maintainer = user
+
+	// Set up BuildDepends and Depends with initialized slices.
+	p.BuildDepends = make([]string, 1)
+	p.BuildDepends[0] = "package for your compiler here"
+
+	p.Depends = make([]string, 1)
+	p.Depends[0] = "package(s) required to run this package"
+
+	// Here, we assume that the section is "main." This may be
+	// incorrect, but it will serve as a template.
+	p.Section = "main"
+
+	// Similarly, "optional" is a common package priority.
+	p.Priority = "optional"
+
+	// We will make the assumption that the package is compiled and
+	// could be compiled on any processor architecture.
+	p.Architecture = "any"
 
 	return
 }
