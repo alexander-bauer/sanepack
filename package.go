@@ -41,6 +41,11 @@ type Package struct {
 	// Homepage is a link (HTTP or HTTPS) to the project homepage.
 	Homepage string
 
+	// ManPages is a slice containing paths (relative to the top of
+	// the package repository) of any and all manpages. Note that the
+	// manpages should be named like "packagename.1," etc.
+	ManPages []string
+
 	// BuildDepends is a slice containing the package names (and
 	// versions) of any packages required to build this one.
 	BuildDepends []string
@@ -112,6 +117,10 @@ func templatePackage() (p *Package) {
 	// out the fields.
 	p.ProjectOwners = []Person{user}
 	p.Maintainer = user
+
+	// Set up ManPages with an initialized slice.
+	p.ManPages = make([]string, 1)
+	p.ManPages[0] = "path/to/manpage.1"
 
 	// Set up BuildDepends and Depends with initialized slices.
 	p.BuildDepends = make([]string, 1)

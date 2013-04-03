@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path"
 	"text/template"
@@ -21,10 +22,24 @@ func (d DebianFrameworker) Info() string {
 }
 
 func (d DebianFrameworker) Framework(p *Package) (err error) {
+	// Begin by trying to create the most difficult file,
+	// debian/control.
+	l.Debug("Attempting to create debian/control\n")
 	err = d.control(p.ProjectName, p.Description, "",
 		p.Section, p.Priority,
 		p.Homepage, p.Architecture, p.Maintainer, p.BuildDepends, p.Depends,
 		p.Recommends, p.Suggests, p.Conflicts, p.Provides, p.Replaces)
+	if err != nil {
+		return
+	}
+
+	// Try to create the debian/<name>.manpages file.
+	l.Debugf("Attempting to create debian/%s.manpages\n", p.ProjectName)
+	err = d.manpages(p.ProjectName, p.ManPages)
+	if err != nil {
+		return
+	}
+
 	return
 }
 
@@ -94,6 +109,26 @@ func (d DebianFrameworker) control(name, description, longDescription, section, 
 	}
 
 	err = t.Execute(f, control)
+	f.Close()
+	return
+}
+
+// manpages creates a "debian/<name>.manpages" file containing every
+// path in the manpages slice, one per line.
+func (d DebianFrameworker) manpages(name string, manpages []string) (err error) {
+	// Begin by trying to open the debian/<name>.manpages file.
+	f, err := os.Create("debian/" + name + ".manpages")
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	// If the file is opened properly, use fmt.Fprintln() to write the
+	// manpages in, one per line.
+	for _, page := range manpages {
+		fmt.Fprintln(f, page)
+	}
+
 	f.Close()
 	return
 }
