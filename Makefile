@@ -1,6 +1,6 @@
 PROGRAM_NAME := sanepack
 GOCOMPILER := go build
-GOFLAGS	+= -ldflags "-X main.Version $(shell git describe)"
+GOFLAGS	+= -ldflags "-X main.Version $(shell git describe --dirty=+)"
 
 
 .PHONY: all install clean distclean
