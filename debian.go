@@ -8,7 +8,9 @@ import (
 	"text/template"
 )
 
-type DebianFrameworker struct{}
+type DebianFrameworker struct {
+	t *template.Template
+}
 
 const (
 	DebianInfo = `To complete building the package, invoke:
@@ -22,13 +24,26 @@ func (d DebianFrameworker) Info() string {
 }
 
 func (d DebianFrameworker) Framework(p *Package) (err error) {
-	// Begin by trying to create the most difficult file,
-	// debian/control.
+	// Begin by trying to load the templates.
+	d.t, err = template.ParseGlob(path.Join(*fTemp, "debian", "*.template"))
+	if err != nil {
+		return
+	}
+	l.Debug("Loaded debian/*.template files")
+
+	// Now go on to create the debian/control file.
 	l.Debug("Attempting to create debian/control\n")
 	err = d.control(p.ProjectName, p.Description, "",
 		p.Section, p.Priority,
 		p.Homepage, p.Architecture, p.Maintainer, p.BuildDepends, p.Depends,
 		p.Recommends, p.Suggests, p.Conflicts, p.Provides, p.Replaces)
+	if err != nil {
+		return
+	}
+
+	// Try to copy over the debian/rules file.
+	l.Debug("Attempting to create debian/rules\n")
+	err = d.rules()
 	if err != nil {
 		return
 	}
@@ -68,7 +83,7 @@ func (d DebianFrameworker) control(name, description, longDescription, section, 
 		LongDescription:  longDescription,
 		Maintainer:       maintainer,
 		BuildDepends:     concat(", ", buildDepends...),
-		Depends:          concat(", ", depends...),
+		Depends:          concat(", ", append(depends, "debhelper")...),
 		Recommends:       concat(", ", recommends...),
 		Suggests:         concat(", ", suggests...),
 		Conflicts:        concat(", ", conflicts...),
@@ -103,12 +118,7 @@ func (d DebianFrameworker) control(name, description, longDescription, section, 
 	}
 	defer f.Close()
 
-	t, err := template.ParseFiles(path.Join(*fTemp, "debian/control.template"))
-	if err != nil {
-		return
-	}
-
-	err = t.Execute(f, control)
+	err = d.t.ExecuteTemplate(f, "control.template", control)
 	f.Close()
 	return
 }
@@ -131,6 +141,21 @@ func (d DebianFrameworker) manpages(name string, manpages []string) (err error) 
 
 	f.Close()
 	return
+}
+
+// rules copies the template file to "debian/rules" and does *not*
+// interpret the template in any way.
+func (d DebianFrameworker) rules() (err error) {
+	f, err := os.Create("debian/rules")
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	// Though this is being run through t.ExecuteTemplate(), this
+	// should perform a simple copy. In the future, this may be
+	// revised to actually use the template.
+	return d.t.ExecuteTemplate(f, "rules.template", nil)
 }
 
 type debianControlFile struct {
