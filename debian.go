@@ -72,6 +72,13 @@ func (d DebianFrameworker) Framework(p *Package) (err error) {
 		return
 	}
 
+	// Try to create the debian/docs file.
+	l.Debug("Attempting to create debian/docs\n")
+	err = d.docs(p.Docs)
+	if err != nil {
+		return
+	}
+
 	// Try to create the debian/<name>.manpages file.
 	l.Debugf("Attempting to create debian/%s.manpages\n", p.ProjectName)
 	err = d.manpages(p.ProjectName, p.ManPages)
@@ -205,6 +212,25 @@ func (d DebianFrameworker) copyright(c Copyright, homepage string) (err error) {
 	// If the file is opened properly, run it through
 	// d.t.ExecuteTemplate() and return any errors.
 	return d.t.ExecuteTemplate(f, "copyright.template", c)
+}
+
+// docs creates a "debian/docs" file containing every given path to a
+// non-manpage document, one per line.
+func (d DebianFrameworker) docs(documents []string) (err error) {
+	// Begin by opening the file.
+	f, err := os.Create("debian/docs")
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	// Now use fmt.Fprintln() to populate it.
+	for _, document := range documents {
+		fmt.Fprintln(f, document)
+	}
+
+	f.Close()
+	return
 }
 
 // manpages creates a "debian/<name>.manpages" file containing every
