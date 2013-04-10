@@ -31,6 +31,13 @@ func (d DebianFrameworker) Framework(p *Package) (err error) {
 	}
 	l.Debug("Loaded debian/*.template files")
 
+	// First, create the debian/ directory.
+	l.Debug("Attempting to create debian/ directory\n")
+	err = os.Mkdir("debian", 0777)
+	if err != nil {
+		return
+	}
+
 	// Now go on to create the debian/control file.
 	l.Debug("Attempting to create debian/control\n")
 	err = d.control(p.ProjectName, p.Description, "",
