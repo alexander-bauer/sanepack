@@ -41,6 +41,13 @@ func (d DebianFrameworker) Framework(p *Package) (err error) {
 		return
 	}
 
+	// Try to create the debian/copyright file.
+	l.Debug("Attempting to create debian/copyright\n")
+	err = d.copyright(*p.Copyright, p.Homepage)
+	if err != nil {
+		return
+	}
+
 	// Try to copy over the debian/rules file.
 	l.Debug("Attempting to create debian/rules\n")
 	err = d.rules()
@@ -121,6 +128,23 @@ func (d DebianFrameworker) control(name, description, longDescription, section, 
 	err = d.t.ExecuteTemplate(f, "control.template", control)
 	f.Close()
 	return
+}
+
+// copyright creates a "debian/copyright" file using the given license
+// type.
+func (d DebianFrameworker) copyright(c Copyright, homepage string) (err error) {
+	// Begin by trying to open the debian/copyright file.
+	f, err := os.Create("debian/copyright")
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	c.Homepage = homepage
+
+	// If the file is opened properly, run it through
+	// d.t.ExecuteTemplate() and return any errors.
+	return d.t.ExecuteTemplate(f, "copyright.template", c)
 }
 
 // manpages creates a "debian/<name>.manpages" file containing every

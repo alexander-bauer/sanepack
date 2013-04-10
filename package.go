@@ -4,6 +4,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"time"
 )
 
 // A Frameworker is a type which is capable of building the framework
@@ -46,6 +47,10 @@ type Package struct {
 	// manpages should be named like "packagename.1," etc.
 	ManPages []string
 
+	// Copyright contains a series of file globs, owners, and license
+	// types, such as GPL 3.0+.
+	Copyright *Copyright
+
 	// BuildDepends is a slice containing the package names (and
 	// versions) of any packages required to build this one.
 	BuildDepends []string
@@ -76,6 +81,18 @@ type Package struct {
 
 type Person struct {
 	Name, Email string
+}
+
+type Copyright struct {
+	Name, License string
+	Homepage      string `json:",omitempty"`
+	Files         []*fileCopyright
+}
+
+type fileCopyright struct {
+	Glob, License string
+	Year          int
+	Owner         Person
 }
 
 // templatePackage attempts to use the current working directory to
@@ -121,6 +138,21 @@ func templatePackage() (p *Package) {
 	// Set up ManPages with an initialized slice.
 	p.ManPages = make([]string, 1)
 	p.ManPages[0] = "path/to/manpage.1"
+
+	// Try to initialize Copyright with sane defaults.
+	p.Copyright = &Copyright{
+		Name:     p.ProjectName,
+		License:  "abbreviated license name (such as GPL 3.0+)",
+		Homepage: p.Homepage,
+		Files:    make([]*fileCopyright, 1),
+	}
+	year, _, _ := time.Now().Date()
+	p.Copyright.Files[0] = &fileCopyright{
+		Glob:    "*",
+		License: "GPL 3.0+",
+		Year:    year,
+		Owner:   user,
+	}
 
 	// Set up BuildDepends and Depends with initialized slices.
 	p.BuildDepends = make([]string, 1)
