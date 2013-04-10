@@ -4,8 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"path"
+	"strings"
 	"text/template"
+	"time"
 )
 
 type DebianFrameworker struct {
@@ -38,7 +41,14 @@ func (d DebianFrameworker) Framework(p *Package) (err error) {
 		return
 	}
 
-	// Now go on to create the debian/control file.
+	// Now go on to create the debian/changelog
+	l.Debug("Attempting to create debain/changelog\n")
+	err = d.changelog(p.ProjectName, p.Maintainer)
+	if err != nil {
+		return
+	}
+
+	// Try to create the debian/control file.
 	l.Debug("Attempting to create debian/control\n")
 	err = d.control(p.ProjectName, p.Description, "",
 		p.Section, p.Priority,
@@ -70,6 +80,49 @@ func (d DebianFrameworker) Framework(p *Package) (err error) {
 	}
 
 	return
+}
+
+// changelog creates a debian/changelog and reads the version control
+// changelog in order to populate it.
+func (d DebianFrameworker) changelog(name string, maintainer Person) (err error) {
+	// First, read the log to get a list of changes.
+	logoutput, err := exec.Command(
+		"git", "--no-pager", "log", "--simplify-merges",
+		"--pretty=format:%s").Output()
+	if err != nil {
+		return
+	}
+
+	// Second, use git describe to get the tag, and only the tag.
+	tag, err := exec.Command(
+		"git", "describe", "--abbrev=0", "--tags", "--match=v*").Output()
+	if err != nil {
+		return
+	}
+	// The Version is slightly more finnicky than the tag; it must
+	// start with a decimal number, and we must make sure not to
+	// include the final newline from the command. Thus, we trim "\n"
+	// from the right and "v" or "V" from the left.
+	version := strings.TrimLeft(
+		strings.TrimRight(string(tag), "\n"), "vV")
+
+	changelog := &debianChangelogFile{
+		Name:       name,
+		Version:    version,
+		Date:       time.Now().Format(time.RFC1123Z),
+		Maintainer: maintainer,
+		Changes:    strings.Split(string(logoutput), "\n"),
+	}
+
+	// Now, create and open debian/changelog for writing.
+	f, err := os.Create("debian/changelog")
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	// Finally, run t.ExecuteTemplate() and return any errors.
+	return d.t.ExecuteTemplate(f, "changelog.template", changelog)
 }
 
 // control creates a debian/control file and populates it with the
@@ -187,6 +240,12 @@ func (d DebianFrameworker) rules() (err error) {
 	// should perform a simple copy. In the future, this may be
 	// revised to actually use the template.
 	return d.t.ExecuteTemplate(f, "rules.template", nil)
+}
+
+type debianChangelogFile struct {
+	Name, Version, Date string
+	Maintainer          Person
+	Changes             []string
 }
 
 type debianControlFile struct {

@@ -1,0 +1,5 @@
+{{.Name}} ({{.Version}}) unstable; urgency=low
+
+{{range $c := .Changes}}  * {{$c}}
+{{end}}
+ -- {{.Maintainer.Name}} <{{.Maintainer.Email}}>  {{.Date}}
