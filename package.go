@@ -142,14 +142,14 @@ func templatePackage() (p *Package) {
 	// Try to initialize Copyright with sane defaults.
 	p.Copyright = &Copyright{
 		Name:     p.ProjectName,
-		License:  "abbreviated license name (such as GPL 3.0+)",
+		License:  "abbreviated license name (such as GPL-3+)",
 		Homepage: p.Homepage,
 		Files:    make([]*fileCopyright, 1),
 	}
 	year, _, _ := time.Now().Date()
 	p.Copyright.Files[0] = &fileCopyright{
 		Glob:    "*",
-		License: "GPL 3.0+",
+		License: "GPL-3+",
 		Year:    year,
 		Owner:   user,
 	}
