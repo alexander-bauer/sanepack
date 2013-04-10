@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	Version = "0.0"
+	Version = "0.1"
 
 	l        *log.Logger
 	loglevel log.LogLevel = log.WARNING // Normally only show warnings
