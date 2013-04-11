@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path"
@@ -256,16 +257,22 @@ func (d DebianFrameworker) manpages(name string, manpages []string) (err error) 
 // rules copies the template file to "debian/rules" and does *not*
 // interpret the template in any way.
 func (d DebianFrameworker) rules() (err error) {
-	f, err := os.Create("debian/rules")
+	// Begin by trying to open the initscript file.
+	fi, err := os.Open(path.Join(*fTemp, "debian/rules"))
 	if err != nil {
 		return
 	}
-	defer f.Close()
+	defer fi.Close()
+	// If that succeeds, open the debian/<name>.init file.
+	fo, err := os.Create("debian/rules")
+	if err != nil {
+		return
+	}
+	defer fo.Close()
 
-	// Though this is being run through t.ExecuteTemplate(), this
-	// should perform a simple copy. In the future, this may be
-	// revised to actually use the template.
-	return d.t.ExecuteTemplate(f, "rules.template", nil)
+	// Now, copy the contents directly using io.Copy().
+	_, err = io.Copy(fo, fi) // (destination, source)
+	return
 }
 
 type debianChangelogFile struct {
