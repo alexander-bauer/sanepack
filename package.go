@@ -42,6 +42,10 @@ type Package struct {
 	// Homepage is a link (HTTP or HTTPS) to the project homepage.
 	Homepage string
 
+	// InitScript is the path (relative to the top of the package
+	// repository) of the startup script, if applicable.
+	InitScript string
+
 	// Docs is a slice containing paths (relative to the top of the
 	// package repository) of any non-manpage documents, such as the
 	// README.

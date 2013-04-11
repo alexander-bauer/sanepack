@@ -80,6 +80,18 @@ func (d DebianFrameworker) Framework(p *Package) (err error) {
 		return
 	}
 
+	// Try to copy over the init script to debian/<name>.init, if
+	// applicable.
+	if len(p.InitScript) > 0 {
+		l.Debugf("Attempting to create debian/%s.init\n", p.ProjectName)
+		err = d.initscript(p.ProjectName, p.InitScript)
+		if err != nil {
+			return
+		}
+	} else {
+		l.Debugf("Skipped creating debian/%s.init file\n", p.ProjectName)
+	}
+
 	// Try to create the debian/<name>.manpages file.
 	l.Debugf("Attempting to create debian/%s.manpages\n", p.ProjectName)
 	err = d.manpages(p.ProjectName, p.ManPages)
@@ -231,6 +243,27 @@ func (d DebianFrameworker) docs(documents []string) (err error) {
 	}
 
 	f.Close()
+	return
+}
+
+// initscript creates a "debian/<name>.init" file with the contents of
+// the specified file.
+func (d DebianFrameworker) initscript(name, initscript string) (err error) {
+	// Begin by trying to open the initscript file.
+	fi, err := os.Open(initscript)
+	if err != nil {
+		return
+	}
+	defer fi.Close()
+	// If that succeeds, open the debian/<name>.init file.
+	fo, err := os.Create("debian/" + name + ".init")
+	if err != nil {
+		return
+	}
+	defer fo.Close()
+
+	// Now, copy the contents directly using io.Copy().
+	_, err = io.Copy(fo, fi) // (destination, source)
 	return
 }
 
