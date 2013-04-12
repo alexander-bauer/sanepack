@@ -1,7 +1,11 @@
 # Ignore the binary produced
 sanepack
-# Ignore output file
+# Ignore the output file and build log
 output.json
+build.log
+
+# As well as build directories
+debian/
 
 # and temporary and backup files
 *~
