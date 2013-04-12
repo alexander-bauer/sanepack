@@ -36,21 +36,18 @@ func (d DebianFrameworker) Framework(p *Package) (err error) {
 	}
 	l.Debug("Loaded debian/*.template files")
 
-	// First, create the debian/ directory.
 	l.Debug("Attempting to create debian/ directory\n")
 	err = os.Mkdir("debian", 0777)
 	if err != nil {
 		return
 	}
 
-	// Now go on to create the debian/changelog
 	l.Debug("Attempting to create debain/changelog\n")
 	err = d.changelog(p.ProjectName, p.Maintainer)
 	if err != nil {
 		return
 	}
 
-	// Try to create the debian/control file.
 	l.Debug("Attempting to create debian/control\n")
 	err = d.control(p.ProjectName, p.Description, "",
 		p.Section, p.Priority,
@@ -60,37 +57,31 @@ func (d DebianFrameworker) Framework(p *Package) (err error) {
 		return
 	}
 
-	// Try to create the debian/compat file.
 	l.Debug("Attempting to create debian/compat\n")
 	err = d.compat()
 	if err != nil {
 		return
 	}
 
-	// Try to create the debian/copyright file.
 	l.Debug("Attempting to create debian/copyright\n")
 	err = d.copyright(*p.Copyright, p.Homepage)
 	if err != nil {
 		return
 	}
 
-	// Try to copy over the debian/rules file.
 	l.Debug("Attempting to create debian/rules\n")
 	err = d.rules()
 	if err != nil {
 		return
 	}
 
-	// Try to create the debian/docs file.
 	l.Debug("Attempting to create debian/docs\n")
 	err = d.docs(p.Docs)
 	if err != nil {
 		return
 	}
 
-	// Try to copy over the init script to debian/<name>.init, if
-	// applicable.
-	if len(p.InitScript) > 0 {
+	if len(p.InitScript) > 0 { // Only do this if p.InitScript is set
 		l.Debugf("Attempting to create debian/%s.init\n", p.ProjectName)
 		err = d.initscript(p.ProjectName, p.InitScript)
 		if err != nil {
@@ -100,7 +91,6 @@ func (d DebianFrameworker) Framework(p *Package) (err error) {
 		l.Debugf("Skipped creating debian/%s.init file\n", p.ProjectName)
 	}
 
-	// Try to create the debian/<name>.manpages file.
 	l.Debugf("Attempting to create debian/%s.manpages\n", p.ProjectName)
 	err = d.manpages(p.ProjectName, p.ManPages)
 	if err != nil {
