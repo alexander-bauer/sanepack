@@ -309,8 +309,10 @@ func (d DebianFrameworker) rules() (err error) {
 		return
 	}
 	defer fi.Close()
-	// If that succeeds, open the debian/<name>.init file.
-	fo, err := os.Create("debian/rules")
+	// If that succeeds, open the debian/rules file in the same manner
+	// that os.Create() would, but with the executable permission set.
+	fo, err := os.OpenFile("debian/rules",
+		os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0777)
 	if err != nil {
 		return
 	}
