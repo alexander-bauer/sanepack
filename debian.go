@@ -21,6 +21,7 @@ const (
     fakeroot dpkg-buildpackage`
 
 	debianStandardsVersion = "3.9.3"
+	debianCompatVersion    = "8"
 )
 
 func (d DebianFrameworker) Info() string {
@@ -55,6 +56,13 @@ func (d DebianFrameworker) Framework(p *Package) (err error) {
 		p.Section, p.Priority,
 		p.Homepage, p.Architecture, p.Maintainer, p.BuildDepends, p.Depends,
 		p.Recommends, p.Suggests, p.Conflicts, p.Provides, p.Replaces)
+	if err != nil {
+		return
+	}
+
+	// Try to create the debian/compat file.
+	l.Debug("Attempting to create debian/compat\n")
+	err = d.compat()
 	if err != nil {
 		return
 	}
@@ -207,6 +215,21 @@ func (d DebianFrameworker) control(name, description, longDescription, section, 
 
 	err = d.t.ExecuteTemplate(f, "control.template", control)
 	f.Close()
+	return
+}
+
+// compat creats a "debian/compat" file using the global compat
+// version.
+func (d DebianFrameworker) compat() (err error) {
+	// Begin by trying to open the debian/compat file.
+	f, err := os.Create("debian/compat")
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	// Now, write in the contents.
+	fmt.Fprintln(f, debianCompatVersion)
 	return
 }
 
