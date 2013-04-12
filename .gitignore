@@ -3,6 +3,7 @@ sanepack
 # Ignore the output file and build log
 output.json
 build.log
+lintian.log
 
 # As well as build directories
 debian/
