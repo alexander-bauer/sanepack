@@ -46,6 +46,11 @@ type Package struct {
 	// repository) of the startup script, if applicable.
 	InitScript string
 
+	// Install is a list of paths or globs (relative to the top of the
+	// package repository) and non-rooted target paths (such as
+	// "usr/bin") to which they will be moved upon package install.
+	Install []string
+
 	// Docs is a slice containing paths (relative to the top of the
 	// package repository) of any non-manpage documents, such as the
 	// README.
@@ -144,7 +149,8 @@ func templatePackage() (p *Package) {
 	p.ProjectOwners = []Person{user}
 	p.Maintainer = user
 
-	// Set up Docs and ManPages with initialized slices.
+	// Set up Install, Docs, and ManPages with initialized slices.
+	p.Install = []string{p.ProjectName + " usr/bin"}
 	p.Docs = []string{"README"}
 	p.ManPages = []string{"path/to/manpage.1"}
 
