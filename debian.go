@@ -36,19 +36,19 @@ func (d DebianFrameworker) Framework(p *Package) (err error) {
 	}
 	l.Debug("Loaded debian/*.template files")
 
-	l.Debug("Attempting to create debian/ directory\n")
+	l.Debug("Creating debian/ directory\n")
 	err = os.Mkdir("debian", 0777)
 	if err != nil {
 		return
 	}
 
-	l.Debug("Attempting to create debain/changelog\n")
+	l.Debug("Creating debain/changelog\n")
 	err = d.changelog(p.ProjectName, p.Maintainer)
 	if err != nil {
 		return
 	}
 
-	l.Debug("Attempting to create debian/control\n")
+	l.Debug("Creating debian/control\n")
 	err = d.control(p.ProjectName, p.Description, "",
 		p.Section, p.Priority,
 		p.Homepage, p.Architecture, p.Maintainer, p.BuildDepends, p.Depends,
@@ -57,51 +57,55 @@ func (d DebianFrameworker) Framework(p *Package) (err error) {
 		return
 	}
 
-	l.Debug("Attempting to create debian/compat\n")
+	l.Debug("Creating debian/compat\n")
 	err = d.compat()
 	if err != nil {
 		return
 	}
 
-	l.Debug("Attempting to create debian/copyright\n")
+	l.Debug("Creating debian/copyright\n")
 	err = d.copyright(*p.Copyright, p.Homepage)
 	if err != nil {
 		return
 	}
 
-	l.Debug("Attempting to create debian/rules\n")
+	l.Debug("Creating debian/rules\n")
 	err = d.rules()
 	if err != nil {
 		return
 	}
 
-	l.Debug("Attempting to create debian/docs\n")
-	err = d.docs(p.Docs)
-	if err != nil {
-		return
+	if len(p.Docs) > 0 {
+		l.Debug("Creating debian/docs\n")
+		err = d.docs(p.Docs)
+		if err != nil {
+			return
+		}
+	} else {
+		l.Debug("Skpped debian/docs\n")
 	}
 
-	if len(p.InitScript) > 0 { // Only do this if p.InitScript is set
-		l.Debugf("Attempting to create debian/%s.init\n", p.ProjectName)
+	if len(p.InitScript) > 0 {
+		l.Debugf("Creating debian/%s.init\n", p.ProjectName)
 		err = d.initscript(p.ProjectName, p.InitScript)
 		if err != nil {
 			return
 		}
 	} else {
-		l.Debugf("Skipped creating debian/%s.init file\n", p.ProjectName)
+		l.Debugf("Skipped debian/%s.init\n", p.ProjectName)
 	}
 
 	if len(p.Install) > 0 {
-		l.Debug("Attempting to create debian/install\n")
+		l.Debug("Creating debian/install\n")
 		err = d.install(p.Install)
 		if err != nil {
 			return
 		}
 	} else {
-		l.Debug("Skipped creating debian/install\n")
+		l.Debug("Skipped debian/install\n")
 	}
 
-	l.Debugf("Attempting to create debian/%s.manpages\n", p.ProjectName)
+	l.Debugf("Creating debian/%s.manpages\n", p.ProjectName)
 	err = d.manpages(p.ProjectName, p.ManPages)
 	if err != nil {
 		return
