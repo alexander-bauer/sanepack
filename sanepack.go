@@ -19,6 +19,8 @@ const (
 )
 
 var (
+	fVersion = flag.Bool("version", false, "print version and exit")
+
 	fFile   = flag.String("f", "sanepack.json", "sanepack file to read")
 	fCreate = flag.Bool("c", false, "create a template sanepack file")
 
@@ -40,6 +42,13 @@ func main() {
 		loglevel = log.INFO
 	}
 	l, _ = log.NewLevel(loglevel, true, os.Stdout, "", 0)
+
+	// Next, check for "do x and exit" flags, such as --version.
+	if *fVersion {
+		// Print Version and exit.
+		l.Println(Version)
+		return
+	}
 
 	l.Infof("Starting sanepack version %s\n", Version)
 
