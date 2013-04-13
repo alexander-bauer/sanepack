@@ -15,7 +15,7 @@ var (
 )
 
 const (
-	defaultTemplates = "/etc/sanepack"
+	defaultTemplates = "/usr/share/sanepack"
 )
 
 var (

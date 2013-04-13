@@ -18,7 +18,7 @@ type DebianFrameworker struct {
 
 const (
 	DebianInfo = `To complete building the package, invoke:
-    fakeroot dpkg-buildpackage`
+    dpkg-buildpackage`
 
 	debianStandardsVersion = "3.9.3"
 	debianCompatVersion    = "8"
