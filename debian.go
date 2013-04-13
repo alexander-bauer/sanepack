@@ -91,6 +91,16 @@ func (d DebianFrameworker) Framework(p *Package) (err error) {
 		l.Debugf("Skipped creating debian/%s.init file\n", p.ProjectName)
 	}
 
+	if len(p.Install) > 0 {
+		l.Debug("Attempting to create debian/install\n")
+		err = d.install(p.Install)
+		if err != nil {
+			return
+		}
+	} else {
+		l.Debug("Skipped creating debian/install\n")
+	}
+
 	l.Debugf("Attempting to create debian/%s.manpages\n", p.ProjectName)
 	err = d.manpages(p.ProjectName, p.ManPages)
 	if err != nil {
@@ -277,6 +287,23 @@ func (d DebianFrameworker) initscript(name, initscript string) (err error) {
 
 	// Now, copy the contents directly using io.Copy().
 	_, err = io.Copy(fo, fi) // (destination, source)
+	return
+}
+
+// install creates a "debian/install" file containing every set of
+// paths in the slice, one element per line.
+func (d DebianFrameworker) install(paths []string) (err error) {
+	// Begin by trying to open the debian/install file.
+	f, err := os.Create("debian/install")
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	// If it opened properly, print in the paths.
+	for _, l := range paths {
+		fmt.Fprintln(f, l)
+	}
 	return
 }
 
