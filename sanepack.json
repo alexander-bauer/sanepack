@@ -1,0 +1,55 @@
+{
+	"ProjectName": "sanepack",
+	"ProjectOwners": [
+		{
+			"Name": "Alexander Bauer",
+			"Email": "sasha@crofter.org"
+		}
+	],
+	"Maintainer": {
+		"Name": "Alexander Bauer",
+		"Email": "sasha@crofter.org"
+	},
+	"Description": "simplified packaging for developers",
+	"Homepage": "https://github.com/SashaCrofter/sanepack",
+	"InitScript": "",
+	"Install": [
+		"sanepack usr/bin",
+		"templates/* usr/share/sanepack"
+	],
+	"Docs": [
+		"README.md"
+	],
+	"ManPages": null,
+	"Copyright": {
+		"Name": "sanepack",
+		"License": "GPL-3+",
+		"Files": [
+			{
+				"Glob": "*",
+				"License": "GPL-3+",
+				"Year": 2013,
+				"Owner": {
+					"Name": "Alexander Bauer",
+					"Email": "sasha@crofter.org"
+				}
+			}
+		]
+	},
+	"BuildDepends": [
+		"golang-go"
+	],
+	"Depends": [
+		"libc6", "git"
+	],
+	"Recommends": [
+		"debhelper (>= 8.0)"
+	],
+	"Suggests": null,
+	"Conflicts": null,
+	"Provides": null,
+	"Replaces": null,
+	"Section": "devel",
+	"Priority": "optional",
+	"Architecture": "any"
+}
